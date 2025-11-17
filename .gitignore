@@ -64,3 +64,4 @@ Thumbs.db
 .cursor
 .specify/.deltas/
 .cursor/.agent-tools/
+dev-db/

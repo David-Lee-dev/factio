@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: factio-postgres-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: factio
+      POSTGRES_USER: factio_dev
+      POSTGRES_PASSWORD: factio_dev
+      PGDATA: ./dev-db/pgdata
+    ports:
+      - '5433:5432'
+    volumes:
+      - ./dev-db/pgdata:/var/lib/postgresql/data
