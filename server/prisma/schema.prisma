@@ -16,21 +16,7 @@ datasource db {
 // V1 MVP 엔티티
 // ============================================
 
-// 1. Admin (운영자) - T007
-model Admin {
-  id       String  @id @default(cuid())
-  email    String  @unique
-  password String // Hashed password (bcrypt)
-  name     String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // 관계
-  articles Article[]
-
-  @@map("admins")
-}
+// 1. Admin (운영자) - T007 - deprecated
 
 // 2. Article (기사) - T008
 model Article {
@@ -38,9 +24,6 @@ model Article {
   title   String
   content String        @db.Text
   status  ArticleStatus @default(DRAFT)
-
-  adminId String
-  admin   Admin  @relation(fields: [adminId], references: [id], onDelete: Cascade)
 
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
@@ -50,13 +33,13 @@ model Article {
   claims Claim[]
 
   @@index([status, publishedAt])
-  @@index([adminId])
   @@map("articles")
 }
 
 // 3. ArticleStatus enum - T010
 enum ArticleStatus {
   DRAFT // 작성 중
+  PROCESSING // 처리 중
   PUBLISHED // 게시됨
   ARCHIVED // 보관됨 (비공개)
 }
