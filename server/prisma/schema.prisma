@@ -1,0 +1,88 @@
+// Prisma Schema for factio V1 MVP
+// Database: PostgreSQL 16
+// ORM: Prisma 5
+// Updated: 2025-11-04
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// V1 MVP 엔티티
+// ============================================
+
+// 1. Admin (운영자) - T007
+model Admin {
+  id       String  @id @default(cuid())
+  email    String  @unique
+  password String // Hashed password (bcrypt)
+  name     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 관계
+  articles Article[]
+
+  @@map("admins")
+}
+
+// 2. Article (기사) - T008
+model Article {
+  id      String        @id @default(cuid())
+  title   String
+  content String        @db.Text
+  status  ArticleStatus @default(DRAFT)
+
+  adminId String
+  admin   Admin  @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  publishedAt DateTime?
+
+  // 관계
+  claims Claim[]
+
+  @@index([status, publishedAt])
+  @@index([adminId])
+  @@map("articles")
+}
+
+// 3. ArticleStatus enum - T010
+enum ArticleStatus {
+  DRAFT // 작성 중
+  PUBLISHED // 게시됨
+  ARCHIVED // 보관됨 (비공개)
+}
+
+// 4. Claim (주장) - T009
+model Claim {
+  id       String       @id @default(cuid())
+  text     String       @db.Text
+  verdict  ClaimVerdict
+  evidence String       @db.Text
+
+  articleId String
+  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  order Int // 기사 내 주장 표시 순서
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([articleId, order])
+  @@map("claims")
+}
+
+// 5. ClaimVerdict enum - T011
+enum ClaimVerdict {
+  TRUE // 사실
+  FALSE // 거짓
+  PARTIAL // 부분 사실
+}
